@@ -1,102 +1,148 @@
-const bcrypt = require("bcryptjs");
+const bcrypt = require("bcrypt");
+const generateToken = require("../../utils/generateToken");
 
 class AuthService {
   constructor(userRepository) {
     this.userRepository = userRepository;
   }
 
-  normalizeEmail(email) {
-    if (!email) return email;
-    return String(email).trim().toLowerCase();
-  }
+  /* =====================================================
+     REGISTER USER
+  ===================================================== */
+  async register(data) {
+    const { name, email, password, phone, location } = data;
 
-  async register({ name, email, phone, password }) {
-    const normalizedEmail = this.normalizeEmail(email);
-    if (!name || !email || !phone || !password) {
-      const err = new Error("All fields required");
-      err.status = 400;
-      throw err;
+    if (!name || !email || !password) {
+      const error = new Error("Name, email and password are required");
+      error.status = 400;
+      throw error;
     }
 
-    const existing = await this.userRepository.findByEmail(normalizedEmail);
-    if (existing) {
-      const err = new Error("Email already registered");
-      err.status = 400;
-      throw err;
+    if (password.length < 6) {
+      const error = new Error("Password must be at least 6 characters");
+      error.status = 400;
+      throw error;
+    }
+
+    const existingUser = await this.userRepository.findByEmail(email);
+
+    if (existingUser) {
+      const error = new Error("User already exists");
+      error.status = 400;
+      throw error;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await this.userRepository.create({
       name,
-      email: normalizedEmail,
-      phone,
+      email,
       password: hashedPassword,
-      location: "",
+      phone,
+      location,
     });
 
+    const token = generateToken(user._id);
+
     return {
-      message: "Account created successfully",
-      userId: user._id,
-      name: user.name,
-      email: user.email,
-      location: user.location || "",
+      message: "Registration successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        location: user.location,
+        role: user.role,
+      },
     };
   }
 
-  async login({ email, password }) {
-    const normalizedEmail = this.normalizeEmail(email);
+  /* =====================================================
+     LOGIN USER
+  ===================================================== */
+  async login(data) {
+    const { email, password } = data;
+
     if (!email || !password) {
-      const err = new Error("All fields required");
-      err.status = 400;
-      throw err;
+      const error = new Error("Email and password are required");
+      error.status = 400;
+      throw error;
     }
 
-    const user = await this.userRepository.findByEmail(normalizedEmail);
+    const user = await this.userRepository.findByEmail(email);
+
     if (!user) {
-      const err = new Error("User not found");
-      err.status = 400;
-      throw err;
+      const error = new Error("Invalid email or password");
+      error.status = 401;
+      throw error;
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      const err = new Error("Invalid password");
-      err.status = 400;
-      throw err;
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
+      const error = new Error("Invalid email or password");
+      error.status = 401;
+      throw error;
     }
+
+    const token = generateToken(user._id);
 
     return {
-      message: "Login Successful",
-      userId: user._id,
-      name: user.name,
-      email: user.email,
-      location: user.location || "",
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        location: user.location,
+        role: user.role,
+      },
     };
   }
 
+  /* =====================================================
+     GET PROFILE
+  ===================================================== */
   async getProfile(id) {
     const user = await this.userRepository.findById(id);
+
     if (!user) {
-      const err = new Error("User not found");
-      err.status = 404;
-      throw err;
+      const error = new Error("User not found");
+      error.status = 404;
+      throw error;
     }
-    const { password, ...safe } = user.toObject();
-    return safe;
+
+    return user;
   }
 
-  async updateProfile(id, { name, location, phone }) {
-    const updated = await this.userRepository.updateById(
-      id,
-      { name, location, phone }
-    );
-    if (!updated) {
-      const err = new Error("User not found");
-      err.status = 404;
-      throw err;
+  /* =====================================================
+     UPDATE PROFILE
+  ===================================================== */
+  async updateProfile(id, data) {
+    const allowedFields = ["name", "phone", "location"];
+
+    const updateData = {};
+
+    allowedFields.forEach((field) => {
+      if (data[field] !== undefined) {
+        updateData[field] = data[field];
+      }
+    });
+
+    const user = await this.userRepository.updateById(id, updateData);
+
+    if (!user) {
+      const error = new Error("User not found");
+      error.status = 404;
+      throw error;
     }
-    const { password, ...safe } = updated.toObject();
-    return safe;
+
+    return {
+      message: "Profile updated successfully",
+      user,
+    };
   }
 }
 

@@ -1,27 +1,23 @@
-const UserModel = require("../../models/User");
-
-const escapeRegex = (value) =>
-  String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const User = require("../../models/User");
 
 class UserRepository {
+  async create(userData) {
+    return await User.create(userData);
+  }
+
   async findByEmail(email) {
-    if (!email) return null;
-    const trimmed = String(email).trim();
-    return UserModel.findOne({
-      email: { $regex: `^${escapeRegex(trimmed)}$`, $options: "i" },
-    });
+    return await User.findOne({ email });
   }
 
   async findById(id) {
-    return UserModel.findById(id);
+    return await User.findById(id).select("-password");
   }
 
-  async create(data) {
-    return UserModel.create(data);
-  }
-
-  async updateById(id, data) {
-    return UserModel.findByIdAndUpdate(id, data, { new: true });
+  async updateById(id, updateData) {
+    return await User.findByIdAndUpdate(id, updateData, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
   }
 }
 
