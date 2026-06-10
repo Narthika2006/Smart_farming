@@ -8,14 +8,9 @@ const {
   updateProfile,
 } = require("../controllers/authController");
 
-const protect = require("../middleware/authMiddleware");
-
-// Public routes
 router.post("/register", register);
 router.post("/login", login);
-
-// Protected routes
-router.get("/profile", protect, getProfile);
-router.put("/profile", protect, updateProfile);
+router.get("/profile/:id", getProfile);
+router.put("/profile/:id", updateProfile);
 
 module.exports = router;

@@ -9,64 +9,55 @@ const authService = new AuthService(new UserRepository());
 exports.register = async (req, res) => {
   try {
     const payload = await authService.register(req.body);
-
     res.status(201).json(payload);
+
   } catch (err) {
     console.error("Register error:", err);
-
-    res.status(err.status || 500).json({
-      message: err.message || "Registration failed",
-    });
+    res.status(err.status || 500).json({ message: err.message || "Registration failed" });
   }
 };
 
+
 /* =====================================================
-   LOGIN USER
+   LOGIN USER (NO JWT)
 ===================================================== */
 exports.login = async (req, res) => {
   try {
     const payload = await authService.login(req.body);
+    res.json(payload);
 
-    res.status(200).json(payload);
   } catch (err) {
     console.error("Login error:", err);
-
-    res.status(err.status || 500).json({
-      message: err.message || "Login failed",
-    });
+    res.status(err.status || 500).json({ message: err.message || "Login failed" });
   }
 };
 
+
 /* =====================================================
-   GET LOGGED-IN USER PROFILE
+   GET PROFILE
 ===================================================== */
 exports.getProfile = async (req, res) => {
   try {
-    const user = await authService.getProfile(req.user.id);
+    const user = await authService.getProfile(req.params.id);
+    res.json(user);
 
-    res.status(200).json(user);
   } catch (err) {
     console.error("Profile fetch error:", err);
-
-    res.status(err.status || 500).json({
-      message: err.message || "Failed to fetch profile",
-    });
+    res.status(err.status || 500).json({ message: err.message || "Failed to fetch profile" });
   }
 };
 
+
 /* =====================================================
-   UPDATE LOGGED-IN USER PROFILE
+   UPDATE PROFILE
 ===================================================== */
 exports.updateProfile = async (req, res) => {
   try {
-    const payload = await authService.updateProfile(req.user.id, req.body);
+    const user = await authService.updateProfile(req.params.id, req.body);
+    res.json(user);
 
-    res.status(200).json(payload);
   } catch (err) {
     console.error("Update error:", err);
-
-    res.status(err.status || 500).json({
-      message: err.message || "Update failed",
-    });
+    res.status(err.status || 500).json({ message: err.message || "Update failed" });
   }
 };
