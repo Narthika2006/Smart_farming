@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import WeatherSection from "../components/WeatherSection";
 import MoistureTrend from "../components/MoisutureTrend";

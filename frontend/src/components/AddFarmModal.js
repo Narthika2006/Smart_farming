@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAuthValue } from "../utils/authStorage";
 import { getApiErrorMessage } from "../utils/apiError";
 import { farmService } from "../services/farmService";

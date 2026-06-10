@@ -1,4 +1,4 @@
-﻿function WeatherSection({ weatherData, farms = [], selectedFarmId, onSelectFarm }) {
+function WeatherSection({ weatherData, farms = [], selectedFarmId, onSelectFarm }) {
   const temp = weatherData?.main?.temp;
   const humidity = weatherData?.main?.humidity;
   const condition = weatherData?.weather?.[0]?.main;

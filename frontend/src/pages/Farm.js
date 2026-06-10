@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import DashboardLayout from "../components/DashboardLayout";
 import AddFarmModal from "../components/AddFarmModal";
 import { getApiErrorMessage } from "../utils/apiError";

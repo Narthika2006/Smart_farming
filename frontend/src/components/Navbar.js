@@ -1,4 +1,4 @@
-﻿import { getAuthValue } from "../utils/authStorage";
+import { getAuthValue } from "../utils/authStorage";
 
 function Navbar() {
   const name = getAuthValue("name");

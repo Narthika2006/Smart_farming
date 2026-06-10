@@ -1,4 +1,4 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { Menu, LayoutDashboard, Sprout, Droplets } from "lucide-react";
 

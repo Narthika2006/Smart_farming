@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
 
 const fonts = { fontFamily: "'DM Sans', sans-serif" };
