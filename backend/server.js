@@ -13,10 +13,29 @@ const startIrrigationScheduler = require("./scheduler/irrigationScheduler");
 
 const app = express();
 
-// CORS setup
+/* =====================================================
+   CORS SETUP
+   Allows localhost + Render env CLIENT_URL + all Vercel URLs
+===================================================== */
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  process.env.CLIENT_URL,
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: function (origin, callback) {
+      if (
+        !origin ||
+        allowedOrigins.includes(origin) ||
+        origin.endsWith(".vercel.app")
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
